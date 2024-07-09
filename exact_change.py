@@ -9,7 +9,7 @@ if quarters > 1:
 elif quarters == 1:
     print(f"""{quarters} Quarter """)
 
-if quarters > 1:
+if quarters:
     change = change - 25 * quarters
 
 
@@ -19,24 +19,22 @@ if dimes > 1:
     print(f"""{dimes} Dimes""")
 elif dimes == 1:
     print(f"""{dimes} Dime """)
-elif dimes < 1:
-    change = change
-else:
+
+if dimes:
     change = change - 10 * dimes
 
 # Hanlde the Nickels
 nickels = int(change / 5)
 if nickels > 1:
     print(f"""{nickels} Nickels""")
-elif dimes == 1:
+elif nickels == 1:
     print(f"""{nickels} Nickel """)
-elif nickels < 1:
-    change = change
-else:
-    change = change - 5 * dimes
+
+if nickels:
+    change = change - 5 * nickels
 
 # Whats left is pennies
 if change > 1:
     print(f"""{change} Pennies""")
-elif dimes == 1:
+elif change == 1:
     print(f"""{change} Penny """)
