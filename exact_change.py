@@ -1,7 +1,9 @@
 import sys
 
+# Get change for changing
 change = int(input())
 
+# Check if there is any change
 if change == 0:
     print("No change")
     sys.exit()
@@ -13,6 +15,7 @@ if dollars > 1:
 elif dollars == 1:
     print(f"""{dollars} Dollar""")
 
+# Remove the dollar/s
 if dollars:
     change = change - 100 * dollars
 
@@ -23,6 +26,7 @@ if quarters > 1:
 elif quarters == 1:
     print(f"""{quarters} Quarter""")
 
+# Remove the quarter/s
 if quarters:
     change = change - 25 * quarters
 
@@ -44,6 +48,7 @@ if nickels > 1:
 elif nickels == 1:
     print(f"""{nickels} Nickel""")
 
+# Remove the Nickel/s
 if nickels:
     change = change - 5 * nickels
 
