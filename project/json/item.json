@@ -34,5 +34,23 @@
                 "description": "A great lunch to have before setting up the sigals to banish the final boss.",
                 "item_image": AsciiArt.from_image("images/secret_notes.png"),
                 "location": "staff_querters"
+            },
+            "handgun":  {
+                "name": "Handgun",
+                "description": "Possibly rather useless here but it still helps personal moral.",
+                "item_image": AsciiArt.from_image("images/secret_notes.png"),
+                "location": "armory"
+            },
+            "keys": {
+                "name": "Vehicle Keys",
+                "description": "Keys for the jeep in the garage.",
+                "item_image": AsciiArt.from_image("images/secret_notes.png"),
+                "location": "kitchen"
+            },
+            "crystals":  {
+                "name": "Purple Pulsating Crystal",
+                "description": "This crystal is very agitating to be near, best to put it away.",
+                "item_image": AsciiArt.from_image("images/secret_notes.png"),
+                "location": "garage"
             }
         }
