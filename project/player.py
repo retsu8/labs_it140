@@ -1,6 +1,6 @@
 class Player:
     def __init__(self):
-        self.items = []
+        self.inventory = []
         self.location = 0
         self.visited = set()
 
