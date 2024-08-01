@@ -2,6 +2,7 @@ class Player:
     def __init__(self):
         self.items = []
         self.location = 0
+        self.visited = set()
 
     def update_location(self, location):
         sself.location = location
