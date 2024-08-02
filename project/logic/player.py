@@ -1,8 +1,9 @@
 class Player:
     def __init__(self):
         self.inventory = []
-        self.location = 0
+        self.location = "start_room"
         self.visited = set()
+        self.dead = False
 
     def update_location(self, location):
         sself.location = location
