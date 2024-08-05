@@ -1,24 +1,39 @@
 class Player:
     """Class building the basic player setup"""
+
     def __init__(self):
+        """__init__ function of player class to build player"""
         self.inventory = []
         self.location = "start_room"
-        self.visited = set()
+        self.visited = []
         self.dead = False
 
     def update_location(self, location):
-        sself.location = location
+        """set the location of the player in the map"""
+        self.location = location
+        self.visited += [location]
+
+    def get_visited_map(self):
+        return self.visited
 
     def update_items(self, item):
+        """Add items to inventory"""
         self.items += [item]
 
     def get_items(self):
-        return self.items
+        """Get the items in the inventory"""
+        inventory = set()
+        for item in inventory:
+            for key, r in item.items():
+                self.inventory.update(key)
+        return list(inventory)
 
     def get_location(self):
+        """Get the players location"""
         return self.location
 
     def pickup_item(self, item):
+        """Get item add to inventory items"""
         self.inventory += [item]
         return self.inventory
 
@@ -26,7 +41,7 @@ class Player:
         inventory = set()
         for item in self.inventory:
             inventory.update([item["name"]])
-        return list(inventory)     
+        return list(inventory)
 
     def get_inventory_count(self):
         return len(self.inventory)

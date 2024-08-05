@@ -16,11 +16,11 @@ class Game:
 
     def player_input_selection(self):
         """Handle Player input for room navigation"""
-        if len(self.maps.get_connected_rooms(self.player.location)) > 1:
-            print(self.dialogue.get_rooms_promt(self.player.location))
+        if len(self.maps.get_connected_rooms(self.player.get_location())) > 1:
+            print(self.dialogue.get_rooms_promt(self.player.get_location()))
         else:
-            print(self.dialogue.get_room_promt(self.player.location))
-        for room in self.maps.get_connected_rooms(self.player.location):
+            print(self.dialogue.get_room_promt(self.player.get_location()))
+        for room in self.maps.get_connected_rooms(self.player.get_location()):
             room = self.maps.get_name(room)
             print(room)
         selection = input()
@@ -36,6 +36,8 @@ class Game:
 
     def handle_play_again(self):
         """Handle player interaction with play again"""
+        print("Fun map of where you wondered.")
+        print(self.player.get_visited_map())
         while True:
             ans = input("Play again? Y/N")
             if "y" == ans.lower():
@@ -55,8 +57,8 @@ class Game:
 
     def handle_item_pickup(self, locaiton):
         """Handle room item pickup"""
-        room_item = self.items.get_item(self.player.location)
-        if room_item not in self.player.inventory:
+        room_item = self.items.get_item(self.player.get_location())
+        if room_item not in self.player.get_items():
             pickup = input(self.dialogue.pickup_item(room_item["name"]))
             if "y" == pickup:
                 self.player.pickup_item(room_item)
@@ -72,7 +74,7 @@ class Game:
         print(self.dialogue.get_additional_input())
         villian = self.maps.get_villian_location()
         while not self.player.dead:
-            description = self.maps.get_description(self.player.location)
+            description = self.maps.get_description(self.player.get_location())
             print(self.dialogue.get_room_description(description))
             print(self.dialogue.get_player_inventory(self.player.get_inventory()))
             player_input = self.player_input_selection()
@@ -81,7 +83,7 @@ class Game:
                 sys.exit()
             elif player_input == "help":
                 print(self.dialogue.get_additional_input())
-            elif player_input in self.maps.get_connected_rooms(self.player.location):
+            elif player_input in self.maps.get_connected_rooms(self.player.get_location()):
                 if player_input in villian:
                     if self.player.get_inventory_count() == self.items.get_count():
                         print("You Win")
@@ -90,14 +92,14 @@ class Game:
                         self.handle_player_died()
                 else:
                     key_item = self.check_locked_room(self.maps.location[player_input])
-                    if key_item in self.player.inventory or not key_item:
-                        self.player.location = player_input
-                        self.handle_item_pickup(self.player.location)
+                    if key_item in self.player.get_items() or not key_item:
+                        self.player.update_location(player_input)
+                        self.handle_item_pickup(self.player.get_location())
                     elif key_item:
                         print(self.dialogue.get_room_locked(player_input))
             else:
                 print(self.dialogue.get_invalid_input())
-                print(self.dialogue.get_rooms_promt(self.player.location))
+                print(self.dialogue.get_rooms_promt(self.player.get_location()))
 
 
 if __name__ == "__main__":
