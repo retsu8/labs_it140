@@ -1,4 +1,5 @@
 import sys
+import re
 from logic.map import Map
 from logic.player import Player
 from logic.item import Item
@@ -20,13 +21,16 @@ class Game:
         else:
             print(self.dialogue.get_room_promt(self.player.location))
         for room in self.maps.get_connected_rooms(self.player.location):
-            room = room.replace("_", " ").title()
-            print(f"{(room)}")
-        return input().lower().replace(" ", "_")
+            room = self.maps.get_name(room)
+            print(room)
+        selection = input()
+        re.sub("[^A-Za-z0-9 ]+", "", selection)
+        selection = selection.lower().replace(" ", "_")
+        return selection
 
     def check_locked_room(self, room):
-        if "lock" in room:
-            return room["lock"]
+        if "locked" in room.keys():
+            return room["locked"]
         else:
             return False
 
@@ -48,6 +52,18 @@ class Game:
         self.player.dead = True
         print(self.dialogue.get_player_died())
         return self.handle_play_again()
+
+    def handle_item_pickup(self, locaiton):
+        """Handle room item pickup"""
+        room_item = self.items.get_item(self.player.location)
+        if room_item not in self.player.inventory:
+            pickup = input(self.dialogue.pickup_item(room_item["name"]))
+            if "y" == pickup:
+                self.player.pickup_item(room_item)
+                print(self.dialogue.pickedup_item(room_item["name"]))
+                print(self.dialogue.get_item_description(room_item["description"]))
+            else:
+                print(self.dialogue.leave_item())
 
     def main(self):
         """Main player handling function"""
@@ -74,13 +90,11 @@ class Game:
                         self.handle_player_died()
                 else:
                     key_item = self.check_locked_room(self.maps.location[player_input])
-                    if key_item in self.player.inventory:
+                    if key_item in self.player.inventory or not key_item:
                         self.player.location = player_input
-                    else:
-                        self.player.location = player_input
-                    room_item = self.items.get_item(self.player.location)
-                    if room_item not in self.player.inventory:
-                        self.player.pickup_item(room_item)
+                        self.handle_item_pickup(self.player.location)
+                    elif key_item:
+                        print(self.dialogue.get_room_locked(player_input))
             else:
                 print(self.dialogue.get_invalid_input())
                 print(self.dialogue.get_rooms_promt(self.player.location))

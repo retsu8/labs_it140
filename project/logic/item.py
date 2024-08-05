@@ -20,25 +20,25 @@ class Item:
                 "name": "Secret Notes",
                 "description": "Notes of the issues with the signal that looks like something went wrong.",
                 #"item_image": AsciiArt.from_image("images/secret_notes.png"),
-                "location": "kira_room"
+                "location": "kiras_room"
             },
             "lab_id":{
                 "name": "Lab ID",
                 "description": "The lab id badge for the lab and grounds",
                 #"item_image": AsciiArt.from_image("images/secret_notes.png"),
-                "location": "bruce_room"
+                "location": "bruces_room"
             },
             "acid": {
                 "name": "Acid Vail",
                 "description": "Vail of acid placed haphazurdusly on the desk",
                 #"item_image": AsciiArt.from_image("images/secret_notes.png"),
-                "location": "koal_room"
+                "location": "koals_room"
             },
             "sandwich": {
                 "name": "Rye with Tuna",
                 "description": "A great lunch to have before setting up the sigals to banish the final boss.",
                 #"item_image": AsciiArt.from_image("images/secret_notes.png"),
-                "location": "staff_querters"
+                "location": "staff_quarters"
             },
             "handgun":  {
                 "name": "Handgun",
@@ -68,3 +68,6 @@ class Item:
 
     def get_count(self):
         return len(self.items.keys())
+
+    def get_description(self, item):
+        return self.items[item]['description']
