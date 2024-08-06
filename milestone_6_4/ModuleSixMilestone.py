@@ -6,9 +6,10 @@
 # A dictionary for the simplified dragon text game
 # The dictionary links a room to other rooms.
 
+
 class Player:
     "Basic player class to define play actions"
-    
+
     def __init__(self):
         "Initialize the player"
         self.location = "Great Hall"
@@ -20,24 +21,28 @@ class Player:
     def get_location(self):
         return self.location
 
+
 class Game:
     def __init__(self):
+        self.player = Player()
         self.rooms = {
-             'Great Hall': {'South': 'Bedroom'},
-         'Bedroom': {'North': 'Great Hall', 'East': 'Cellar'},
-            'Cellar': {'West': 'Bedroom'}
+            "Great Hall": {"South": "Bedroom"},
+            "Bedroom": {"North": "Great Hall", "East": "Cellar"},
+            "Cellar": {"West": "Bedroom"},
         }
 
         print("Welcome to dungean")
         print("There are five commands here to use; exit, North, South, East, and West")
+
     def main(self):
-        while player.get_location() != 'exit':
-            print("You are in {player.location}; where would you like to go?")
+        while self.player.get_location() != "exit":
+            print(f"You are in {self.player.location}; where would you like to go?")
             movement = input()
-            if movement in rooms[player.location]:
-                player.update_location(rooms[player.location][movement])
+            if movement in self.rooms[self.player.location]:
+                self.player.update_location(self.rooms[self.player.location][movement])
             elif movement == "exit":
-                player.update_location("exit")
+                self.player.update_location("exit")
+
 
 if __name__ == "__main__":
     game = Game()
