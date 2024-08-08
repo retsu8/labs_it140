@@ -36,10 +36,10 @@ class Dialogue:
 
 	def pickup_item(self, item):
 		if item[0] in self.vowels:
-			return f"You've found an {item}; would you like to pick it up? Y/N"
+			return f"You've found an {item}; would you like to pick it up?"
 		elif item[-1].lower() == "s":
-			return f"Youve found the {item}; would you like to pick it up? Y/N"
-		return f"Youve found a {item}; would you like to pick it up? Y/N"
+			return f"Youve found the {item}; would you like to pick it up?"
+		return f"Youve found a {item}; would you like to pick it up?"
 
 	def get_room_locked(self, location):
 		if "garage" in location:

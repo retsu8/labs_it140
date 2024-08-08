@@ -60,7 +60,8 @@ class Game:
         room_item = self.items.get_item(self.player.get_location())
         if room_item not in self.player.get_items():
             pickup = input(self.dialogue.pickup_item(room_item["name"]))
-            if "y" == pickup:
+            pickup = pickup.split(" ")
+            if "get" in pickup and room_item["Name"] in pickup[1:]:
                 self.player.pickup_item(room_item)
                 print(self.dialogue.pickedup_item(room_item["name"]))
                 print(self.dialogue.get_item_description(room_item["description"]))
