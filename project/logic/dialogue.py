@@ -12,8 +12,8 @@ class Dialogue:
 		return self.introduction
 
 	def get_player_help(self):
-		return """To interact with the maps, put in the room name to proceed.
-				  To pickup items, use the command, pickup items.
+		return """To interact with the maps, put go 'direction'.
+				  To pickup items, use the command, get items.
 				  To see this menu again, type in help."""
 
 	def get_room_promt(self, location):
@@ -36,7 +36,7 @@ class Dialogue:
 
 	def pickup_item(self, item):
 		if item[0] in self.vowels:
-			return f"Youve found an {item}; would you like to pick it up? Y/N"
+			return f"You've found an {item}; would you like to pick it up? Y/N"
 		elif item[-1].lower() == "s":
 			return f"Youve found the {item}; would you like to pick it up? Y/N"
 		return f"Youve found a {item}; would you like to pick it up? Y/N"
