@@ -20,7 +20,7 @@ class Dialogue:
 		return "Looks like theres only one direction to go here."
 
 	def get_invalid_input(self):
-		return "Looks like we cant go that way, try again."
+		return "That input is invalid, try again."
 
 	def get_rooms_promt(self, location):
 		return "Looks like theres multiple ways to go, where to next?"
