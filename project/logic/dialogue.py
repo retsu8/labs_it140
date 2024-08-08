@@ -72,3 +72,6 @@ class Dialogue:
 
 	def get_player_meets_villan_unarmed(self):
 		return "Your not prepared yet, still cant banish back Cthulhu!!!"
+
+	def room_into(self, location):
+		return f"""Location: {location}"""

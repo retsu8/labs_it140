@@ -20,14 +20,6 @@ class Player:
         """Add items to inventory"""
         self.items += [item]
 
-    def get_items(self):
-        """Get the items in the inventory"""
-        inventory = set()
-        for item in inventory:
-            for key, r in item.items():
-                self.inventory.update(key)
-        return list(inventory)
-
     def get_location(self):
         """Get the players location"""
         return self.location

@@ -20,10 +20,16 @@ class Game:
             print(self.dialogue.get_rooms_promt(self.player.get_location()))
         else:
             print(self.dialogue.get_room_promt(self.player.get_location()))
-        for key, room in self.maps.get_connected_rooms(self.player.get_location()).items():
+        for key, room in self.maps.get_connected_rooms(
+            self.player.get_location()
+        ).items():
             room = self.maps.get_name(room)
-            print(f'{key}: {room}')
-        selection = input()
+            print(f"{key}: {room}")
+        selection = input().split(" ", maxsplit=1)
+        if "go" in selection:
+            selection = selection[1]
+        else:
+            return False
         re.sub("[^A-Za-z0-9 ]+", "", selection)
         selection = selection.lower().replace(" ", "_")
         return selection
@@ -58,13 +64,15 @@ class Game:
     def handle_item_pickup(self, locaiton):
         """Handle room item pickup"""
         room_item = self.items.get_item(self.player.get_location())
-        if room_item not in self.player.get_items():
+        print(self.player.get_inventory())
+        print(room_item)
+        if room_item["name"] not in self.player.get_inventory():
             pickup = input(self.dialogue.pickup_item(room_item["name"]))
-            pickup = pickup.split(" ")
-            print(pickup)
+            pickup = pickup.split(" ", maxsplit=1)
             if "get" in pickup:
-                if room_item["name"].join("_") in pickup:
-                    pickup.remove("get")
+                pickup.remove("get")
+                pickup = pickup[0].lower()
+                if room_item["name"].lower() in pickup:
                     self.player.pickup_item(room_item)
                     print(self.dialogue.pickedup_item(room_item["name"]))
                     print(self.dialogue.get_item_description(room_item["description"]))
@@ -77,9 +85,9 @@ class Game:
         print(self.dialogue.get_player_help())
         print(self.dialogue.get_additional_input())
         villian = self.maps.get_villian_location()
+        description = self.maps.get_description(self.player.get_location())
+        print(self.dialogue.get_room_description(description))
         while not self.player.dead:
-            description = self.maps.get_description(self.player.get_location())
-            print(self.dialogue.get_room_description(description))
             print(self.dialogue.get_player_inventory(self.player.get_inventory()))
             player_input = self.player_input_selection()
             connected_rooms = self.maps.get_connected_rooms(self.player.get_location())
@@ -98,8 +106,11 @@ class Game:
                 else:
                     key_location = connected_rooms[player_input]
                     key_item = self.check_locked_room(self.maps.location[key_location])
-                    if key_item in self.player.get_items() or not key_item:
+                    if key_item in self.player.get_inventory() or not key_item:
                         self.player.update_location(key_location)
+                        description = self.maps.get_description(self.player.get_location())
+                        print(self.dialogue.room_into(key_location))
+                        print(self.dialogue.get_room_description(description))
                         self.handle_item_pickup(self.player.get_location())
                     elif key_item:
                         print(self.dialogue.get_room_locked(key_location))
