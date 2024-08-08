@@ -5,16 +5,14 @@ class Dialogue:
 			Thus only dialoge modiciation should be done here. Incoming var manipulation 
 			should kept to a minimum."""
 		self.vowels = ("a","e","i","o","u")
-		self.help = ""
+		self.help = """To interact with the maps, put go 'direction'.\nTo pickup items, use the command, get item/ or leave item\nTo see this menu again, type in help."""
 		self.path = "Choose one of the following paths here {}"
-		self.introduction = """Wellcome to Greyhalk, and the tomb of horrors, you're responsible for making it out of this tomb before running into the horrors of Cthulhu. Deep in the crypt, there lies the ancient sigils of summoning.  Having tested these sigals and succeeded; you're now the sole survivor left, after the rest were killed. You need to now collect the various items from the rooms in order to make a new banishing sigal and hopefully it will work."""
+		self.introduction = """Wellcome to Greyhalk, and the tomb of horrors, you're responsible for making it out of this tomb before running into the horrors of Cthulhu. Deep in the crypt, there lies the ancient sigils of summoning.  Having tested these sigals and succeeded; you're now the sole survivor left, after the rest were killed. You need to now collect the various items from the rooms in order to make a new banishing sigal and hopefully it will work.\n"""
 	def get_introduciton(self):
 		return self.introduction
 
 	def get_player_help(self):
-		return """To interact with the maps, put go 'direction'.
-				  To pickup items, use the command, get items.
-				  To see this menu again, type in help."""
+		return self.help
 
 	def get_room_promt(self, location):
 		return "Looks like theres only one direction to go here."
@@ -23,10 +21,10 @@ class Dialogue:
 		return "That input is invalid, try again."
 
 	def get_rooms_promt(self, location):
-		return "Looks like theres multiple ways to go, where to next?"
+		return """Looks like theres multiple ways to go, where to next?\n_______________________________________________________"""
 
 	def get_additional_input(self):
-		return "You can also use 0 to quite the game"
+		return "You can also use 0 to quite the game\n--------------------------------------\n"
 
 	def get_player_died(self):
 		return "The game has now ended, you have died."

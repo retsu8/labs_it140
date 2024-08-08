@@ -41,5 +41,5 @@ class Player:
     def reset(self):
         self.inventory = []
         self.location = "start_room"
-        self.visited = set()
+        self.visited = []
         self.dead = False

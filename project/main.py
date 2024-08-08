@@ -28,6 +28,8 @@ class Game:
         selection = input().split(" ", maxsplit=1)
         if "go" in selection:
             selection = selection[1]
+        elif "0" in selection or "help" in selection:
+            return selection[0]
         else:
             return False
         re.sub("[^A-Za-z0-9 ]+", "", selection)
@@ -35,6 +37,7 @@ class Game:
         return selection
 
     def check_locked_room(self, room):
+        """Check if the room is locked"""
         if "locked" in room.keys():
             return room["locked"]
         else:
@@ -67,35 +70,50 @@ class Game:
         print(self.player.get_inventory())
         print(room_item)
         if room_item["name"] not in self.player.get_inventory():
-            pickup = input(self.dialogue.pickup_item(room_item["name"]))
-            pickup = pickup.split(" ", maxsplit=1)
-            if "get" in pickup:
-                pickup.remove("get")
-                pickup = pickup[0].lower()
-                if room_item["name"].lower() in pickup:
-                    self.player.pickup_item(room_item)
-                    print(self.dialogue.pickedup_item(room_item["name"]))
-                    print(self.dialogue.get_item_description(room_item["description"]))
-            else:
-                print(self.dialogue.leave_item())
+            while True:
+                pickup = input(self.dialogue.pickup_item(room_item["name"]))
+                pickup = pickup.split(" ", maxsplit=1)
+                if "get" in pickup:
+                    pickup.remove("get")
+                    pickup = pickup[0].lower()
+                    if room_item["name"].lower() in pickup:
+                        self.player.pickup_item(room_item)
+                        print(self.dialogue.pickedup_item(room_item["name"]))
+                        print(self.dialogue.get_item_description(room_item["description"]))
+                        return
+                elif "leave" in pickup:
+                    pickup.remove("leave")
+                    print(self.dialogue.leave_item())
+                    return
+                elif "help" in pickup:
+                    print(self.dialogue.get_player_help())
+                else:
+                    print(self.dialogue.get_invalid_input())
 
-    def main(self):
-        """Main player handling function"""
+    def play_introduction(self):
+        """Introduce the story and help menu"""
         print(self.dialogue.get_introduciton())
         print(self.dialogue.get_player_help())
         print(self.dialogue.get_additional_input())
-        villian = self.maps.get_villian_location()
-        description = self.maps.get_description(self.player.get_location())
+
+    def get_room_description(self, location):
+        """Return the room description"""
+        description = self.maps.get_description(location)
         print(self.dialogue.get_room_description(description))
+
+    def main(self):
+        """Main player handling function"""
+        self.play_introduction()
+        villian = self.maps.get_villian_location()
+        self.get_room_description(self.player.get_location())
         while not self.player.dead:
             print(self.dialogue.get_player_inventory(self.player.get_inventory()))
             player_input = self.player_input_selection()
             connected_rooms = self.maps.get_connected_rooms(self.player.get_location())
             if player_input == "0":
-                print(self.dialogue.get_player_died())
-                sys.exit()
+                self.handle_player_died()
             elif player_input == "help":
-                print(self.dialogue.get_additional_input())
+                print(self.dialogue.get_player_help())
             elif player_input in connected_rooms.keys():
                 if player_input in villian:
                     if self.player.get_inventory_count() == self.items.get_count():
@@ -108,7 +126,9 @@ class Game:
                     key_item = self.check_locked_room(self.maps.location[key_location])
                     if key_item in self.player.get_inventory() or not key_item:
                         self.player.update_location(key_location)
-                        description = self.maps.get_description(self.player.get_location())
+                        description = self.maps.get_description(
+                            self.player.get_location()
+                        )
                         print(self.dialogue.room_into(key_location))
                         print(self.dialogue.get_room_description(description))
                         self.handle_item_pickup(self.player.get_location())
