@@ -115,6 +115,7 @@ class Game:
             elif player_input == "help":
                 print(self.dialogue.get_player_help())
             elif player_input in connected_rooms.keys():
+                # HOW TO: handle player fights villain
                 if player_input in villian:
                     if self.player.get_inventory_count() == self.items.get_count():
                         print("You Win")
