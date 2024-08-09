@@ -1,5 +1,8 @@
 import sys
 import re
+from unittest import mock
+from unittest import TestCase
+import module_under_test
 from logic.map import Map
 from logic.player import Player
 from logic.item import Item
