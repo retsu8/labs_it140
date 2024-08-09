@@ -14,6 +14,9 @@ class Dialogue:
 	def get_player_help(self):
 		return self.help
 
+	def get_winning_person(self):
+		return "You have managed to collect all the items and banish Cthulhu back to the netherrealm!"
+
 	def get_room_promt(self, location):
 		return "Looks like theres only one direction to go here."
 

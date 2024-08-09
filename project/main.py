@@ -1,8 +1,9 @@
 import sys
 import re
+import logging
 from unittest import mock
 from unittest import TestCase
-import module_under_test
+import argparse
 from logic.map import Map
 from logic.player import Player
 from logic.item import Item
@@ -121,7 +122,7 @@ class Game:
                 # HOW TO: handle player fights villain
                 if player_input in villian:
                     if self.player.get_inventory_count() == self.items.get_count():
-                        print("You Win")
+                        print(self.dialogue.get_winning_person())
                     else:
                         print(self.dialogue.get_player_meets_villan_unarmed())
                         self.handle_player_died()
@@ -142,7 +143,40 @@ class Game:
                 print(self.dialogue.get_invalid_input())
                 print(self.dialogue.get_rooms_promt(self.player.get_location()))
 
+class TestPlayerInputSelection(TestCase):
+    def test_one(self):
+        game = Game()
+        with mock.patch('builtins.input', return_value="go west"):
+            self.assertEqual(game.player_input_selection(), "west")
+
+        with mock.patch('builtins.input', return_value="go right"):
+            self.assertEqual(game.player_input_selection(), "right")
+
+        with mock.patch("builtins.input", return_value="try again"):
+            self.assertEqual(game.player_input_selection(), False)
+
+    def test_two(self):
+        game = Game()
+        keys = {"locked": "acid"}
+        self.assertIs(game.check_locked_room(keys), "acid")
+
+    def test_three(self):
+        game = Game()
+        game.player.update_location("staff_quarters")
+        with mock.patch('builtins.input', return_value="y"):
+            game.handle_play_again()
+            self.assertEqual(game.player.location, "start_room")
+
+    def not_a_test(self):
+        return 'test'
 
 if __name__ == "__main__":
-    game = Game()
-    game.main()
+    if sys.argv[1] == "-h":
+        print("Printing out tests")
+        test = TestPlayerInputSelection()
+        test.test_one()
+        test.test_two()
+        test.test_three()
+    else:
+        game = Game()
+        game.main()
