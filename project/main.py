@@ -68,11 +68,9 @@ class Game:
         print(self.dialogue.get_player_died())
         return self.handle_play_again()
 
-    def handle_item_pickup(self, locaiton):
+    def handle_item_pickup(self, loc):
         """Handle room item pickup"""
-        room_item = self.items.get_item(self.player.get_location())
-        print(self.player.get_inventory())
-        print(room_item)
+        room_item = self.items.get_item(loc)
         if room_item["name"] not in self.player.get_inventory():
             while True:
                 pickup = input(self.dialogue.pickup_item(room_item["name"]))
@@ -167,6 +165,21 @@ class TestPlayerInputSelection(TestCase):
             game.handle_play_again()
             self.assertEqual(game.player.location, "start_room")
 
+    def test_update_inventory(self):
+        game = Game()
+        item = Item()
+        game.player.pickup_item(item.items["green_slime"])
+        self.assertEqual(game.player.get_inventory(), ["Green Slime"])
+        game.player.pickup_item(item.items["research_notes"])
+        self.assertEqual(game.player.get_inventory(), ["Green Slime", "Research Notes"])
+
+    def test_handle_item_pickup(self):
+        game = Game()
+        game.player.update_location("staff_quarters")
+        with mock.patch("builtins.input", return_value="get green slime"):
+            game.handle_item_pickup(game.player.get_location())
+            self.assertEqual(game.player.get_inventory, ["green_slime"])
+
     def not_a_test(self):
         return 'test'
 
@@ -177,6 +190,8 @@ if __name__ == "__main__":
         test.test_one()
         test.test_two()
         test.test_three()
+        test.test_update_inventory()
+        test.test_handle_item_pickup()
     else:
         game = Game()
         game.main()

@@ -33,7 +33,7 @@ class Player:
         inventory = set()
         for item in self.inventory:
             inventory.update([item["name"]])
-        return list(inventory)
+        return sorted(list(inventory))
 
     def get_inventory_count(self):
         return len(self.inventory)
