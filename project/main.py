@@ -71,7 +71,7 @@ class Game:
     def handle_item_pickup(self, loc):
         """Handle room item pickup"""
         room_item = self.items.get_item(loc)
-        if room_item["name"] not in self.player.get_inventory():
+        if room_item["slug"] not in self.player.get_inventory_slug():
             while True:
                 pickup = input(self.dialogue.pickup_item(room_item["name"]))
                 pickup = pickup.split(" ", maxsplit=1)
@@ -81,8 +81,12 @@ class Game:
                     if room_item["name"].lower() in pickup:
                         self.player.pickup_item(room_item)
                         print(self.dialogue.pickedup_item(room_item["name"]))
-                        print(self.dialogue.get_item_description(room_item["description"]))
+                        print(
+                            self.dialogue.get_item_description(room_item["description"])
+                        )
                         return
+                    else:
+                        print(self.dialogue.get_invalid_input())
                 elif "leave" in pickup:
                     pickup.remove("leave")
                     print(self.dialogue.leave_item())
@@ -127,7 +131,9 @@ class Game:
                 else:
                     key_location = connected_rooms[player_input]
                     key_item = self.check_locked_room(self.maps.location[key_location])
-                    if key_item in self.player.get_inventory() or not key_item:
+                    print(key_item)
+                    print(self.player.get_inventory_slug())
+                    if key_item in self.player.get_inventory_slug() or not key_item:
                         self.player.update_location(key_location)
                         description = self.maps.get_description(
                             self.player.get_location()
@@ -141,27 +147,32 @@ class Game:
                 print(self.dialogue.get_invalid_input())
                 print(self.dialogue.get_rooms_promt(self.player.get_location()))
 
+
 class TestPlayerInputSelection(TestCase):
-    def test_one(self):
+    @mock.patch("builtins.print", return_value="")
+    def test_player_input_selection(self):
         game = Game()
-        with mock.patch('builtins.input', return_value="go west"):
+        with mock.patch("builtins.input", return_value="go west"):
             self.assertEqual(game.player_input_selection(), "west")
 
-        with mock.patch('builtins.input', return_value="go right"):
+        with mock.patch("builtins.input", return_value="go right"):
             self.assertEqual(game.player_input_selection(), "right")
+
+        with mock.patch("builtins.input", return_value="goright"):
+            self.assertEqual(game.player_input_selection(), False)
 
         with mock.patch("builtins.input", return_value="try again"):
             self.assertEqual(game.player_input_selection(), False)
 
-    def test_two(self):
+    def test_check_locked_room(self):
         game = Game()
         keys = {"locked": "acid"}
         self.assertIs(game.check_locked_room(keys), "acid")
 
-    def test_three(self):
+    def test_handle_play_again(self):
         game = Game()
         game.player.update_location("staff_quarters")
-        with mock.patch('builtins.input', return_value="y"):
+        with mock.patch("builtins.input", return_value="y"):
             game.handle_play_again()
             self.assertEqual(game.player.location, "start_room")
 
@@ -178,20 +189,23 @@ class TestPlayerInputSelection(TestCase):
         game.player.update_location("staff_quarters")
         with mock.patch("builtins.input", return_value="get green slime"):
             game.handle_item_pickup(game.player.get_location())
-            self.assertEqual(game.player.get_inventory, ["green_slime"])
+            self.assertEqual(game.player.get_inventory(), ["Green Slime"])
 
     def not_a_test(self):
-        return 'test'
+        return "test"
+
 
 if __name__ == "__main__":
-    if sys.argv[1] == "-h":
+    if len(sys.argv) > 1 and sys.argv[1] == "-h":
+        """Handle simple testing for a few needed resources"""
         print("Printing out tests")
         test = TestPlayerInputSelection()
-        test.test_one()
-        test.test_two()
-        test.test_three()
+        test.test_player_input_selection()
+        test.test_check_locked_room()
+        test.test_handle_play_again()
         test.test_update_inventory()
         test.test_handle_item_pickup()
     else:
+        """Start the game"""
         game = Game()
         game.main()
