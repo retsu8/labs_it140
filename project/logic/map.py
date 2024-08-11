@@ -1,8 +1,9 @@
-from ascii_magic import AsciiArt
 from json import load
 
 
 class Map:
+    """Mapping class for building the player map"""
+
     def __init__(self):
         self.location = {
             "start_room": {
@@ -102,15 +103,19 @@ class Map:
         }
 
     def get_connected_rooms(self, location):
+        """Get the connected rooms for this locaiton"""
         return self.location[location]["connected_rooms"]
 
     def get_description(self, location):
+        """Get the room discription"""
         return self.location[location]["description"]
 
     def get_name(self, location):
+        """Get the pretty room name"""
         return self.location[location]["name"]
 
     def get_villian_location(self):
+        """Get the villans room"""
         for room in self.location:
             if "villian" in self.location[room]:
                 return room
