@@ -445,6 +445,7 @@ class Game:
         print(self.dialogue.get_room_description(description))
 
     def handle_player_walk(self):
+        """Main player walk functionality."""
         player_input = self.player_input_selection()
         connected_rooms = self.maps.get_connected_rooms(self.player.get_location())
         if self.handle_player_defaults(player_input):
@@ -460,12 +461,11 @@ class Game:
             else:
                 key_location = connected_rooms[player_input]
                 key_item = self.check_locked_room(self.maps.location[key_location])
-                print(key_item)
-                print(self.player.get_inventory_slug())
                 if key_item in self.player.get_inventory_slug() or not key_item:
                     self.player.update_location(key_location)
                     description = self.maps.get_description(self.player.get_location())
-                    print(self.dialogue.room_into(key_location))
+                    key_room_name = self.maps.get_name(key_location)
+                    print(self.dialogue.room_intro(key_room_name))
                     print(self.dialogue.get_room_description(description))
                     room_item = self.items.get_item(self.player.get_location())
                     if room_item["slug"] not in self.player.get_inventory_slug():
