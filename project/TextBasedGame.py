@@ -5,6 +5,7 @@ from unittest import mock
 from unittest import TestCase
 import argparse
 
+
 class Map:
     """Mapping class for building the player map"""
 
@@ -194,7 +195,7 @@ class Dialogue:
         return f"You picked up the item {item}"
 
     def get_player_inventory(self, inventory_list):
-        return f"Inventory: {"; ".join(inventory_list)}"
+        return f"Inventory: {'; '.join(inventory_list)}"
 
     def get_room_description(self, description):
         return f"""Description: {description}"""
@@ -204,6 +205,7 @@ class Dialogue:
 
     def room_intro(self, location):
         return f"""Location: {location}"""
+
 
 class Player:
     """Class building the basic player setup"""
@@ -261,6 +263,7 @@ class Player:
         self.location = "start_room"
         self.visited = []
         self.dead = False
+
 
 class Item:
     def __init__(self):
