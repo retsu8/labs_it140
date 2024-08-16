@@ -4,10 +4,337 @@ import logging
 from unittest import mock
 from unittest import TestCase
 import argparse
-from logic.map import Map
-from logic.player import Player
-from logic.item import Item
-from logic.dialogue import Dialogue
+
+class Map:
+    """Mapping class for building the player map"""
+
+    def __init__(self):
+        self.location = {
+            "start_room": {
+                "name": "Start Room",
+                "description": "Summoning room for Cthulahu",
+                "item": "",
+                "room_image": "",
+                "connected_rooms": {"west": "lab"},
+            },
+            "lab": {
+                "name": "Lab",
+                "description": "Room for resaearch",
+                "item": "green_slime",
+                "room_image": "",
+                "connected_rooms": {
+                    "west": "meeting_room",
+                    "east": "start_room",
+                    "south": "kitchen",
+                },
+            },
+            "meeting_room": {
+                "name": "Meeting Room",
+                "description": "Room with lots of couches and a few armchairs.",
+                "item": "research_notes",
+                "room_image": "",
+                "connected_rooms": {
+                    "east": "lab",
+                    "north": "kiras_room",
+                    "west": "bruces_room",
+                    "south": "koals_room",
+                },
+            },
+            "kiras_room": {
+                "name": "Kira's Room",
+                "description": "Kira's the lab assistants room. Nice and neat jsut like she was.",
+                "item": "secret_notes",
+                "room_image": "",
+                "connected_rooms": {"south": "meeting_room"},
+            },
+            "bruces_room": {
+                "name": "Bruce's Room",
+                "description": "Bruce the lab technician. A very empty room, with almost nothing in it.",
+                "item": "lab_id",
+                "room_image": "",
+                "connected_rooms": {"east": "meeting_room"},
+            },
+            "koals_room": {
+                "name": "Koal's Room",
+                "description": "Koal's the lab lead.  Always piled with clutter.",
+                "item": "acid",
+                "room_image": "",
+                "connected_rooms": {"north": "meeting_room"},
+            },
+            "staff_quarters": {
+                "name": "Staff Quarters",
+                "description": "Hy! Its the old staff quarters, always feels like home",
+                "item": "sandwich",
+                "room_image": "",
+                "connected_rooms": {
+                    "north": "kitchen",
+                    "west": "armory",
+                    "east": "garage",
+                },
+            },
+            "lounge": {
+                "name": "Lounge",
+                "description": "I am the being Cthulahu; summoned to this realm.",
+                "villian": True,
+            },
+            "armory": {
+                "name": "Armory",
+                "description": "Lots of old crates and boxes in here, laboled with everything the research team needed.",
+                "item": "handgun",
+                "room_image": "",
+                "connected_rooms": {"east": "staff_quarters"},
+                "locked": "lab_id",
+            },
+            "kitchen": {
+                "name": "Kitchen",
+                "description": "Always loved to work in the kitchen, its the closest to the food.",
+                "item": "vehicle_keys",
+                "room_image": "",
+                "connected_rooms": {
+                    "north": "lab",
+                    "east": "lounge",
+                    "south": "staff_quarters",
+                },
+            },
+            "garage": {
+                "name": "Garage",
+                "description": "There an old jeap in here, wounder if it actually runs.",
+                "item": "crystals",
+                "room_image": "",
+                "connected_rooms": {"east": "staff_quarters"},
+                "locked": "acid",
+            },
+        }
+
+    def get_connected_rooms(self, location):
+        """Get the connected rooms for this locaiton"""
+        return self.location[location]["connected_rooms"]
+
+    def get_description(self, location):
+        """Get the room discription"""
+        return self.location[location]["description"]
+
+    def get_name(self, location):
+        """Get the pretty room name"""
+        return self.location[location]["name"]
+
+    def get_villian_location(self):
+        """Get the villans room"""
+        for room in self.location:
+            if "villian" in self.location[room]:
+                return room
+
+
+class Dialogue:
+    def __init__(self):
+        """Dialogue functionaity of rooms game; this class makes the dialoge for the game,
+        Allowing each function to take care of the specifics for the dialoge assoication.
+        Thus only dialoge modiciation should be done here. Incoming var manipulation
+        should kept to a minimum."""
+        self.vowels = ("a", "e", "i", "o", "u")
+        self.help = """To interact with the maps, put go 'direction'.\nTo pickup items, use the command, get item/ or leave item\nTo see this menu again, type in help."""
+        self.path = "Choose one of the following paths here {}"
+        self.introduction = """Wellcome to Greyhalk, and the tomb of horrors, you're responsible for making it out of this tomb before running into the horrors of Cthulhu. Deep in the crypt, there lies the ancient sigils of summoning.  Having tested these sigals and succeeded; you're now the sole survivor left, after the rest were killed. You need to now collect the various items from the rooms in order to make a new banishing sigal and hopefully it will work.\n"""
+
+    def get_introduciton(self):
+        return self.introduction
+
+    def get_player_help(self):
+        return self.help
+
+    def get_winning_person(self):
+        return "You have managed to collect all the items and banish Cthulhu back to the netherrealm!"
+
+    def get_room_promt(self, location):
+        return "Looks like theres only one direction to go here."
+
+    def get_invalid_input(self):
+        return "That input is invalid, try again."
+
+    def get_rooms_promt(self, location):
+        return """Looks like theres multiple ways to go, where to next?\n_______________________________________________________"""
+
+    def get_additional_input(self):
+        return "You can also use 0 to quite the game\n--------------------------------------\n"
+
+    def get_player_died(self):
+        return "The game has now ended, you have died."
+
+    def get_item_description(self, item):
+        return f"Item Description: {item}"
+
+    def pickup_item(self, item):
+        if item[0] in self.vowels:
+            return f"You've found an {item}; would you like to pick it up?\n"
+        elif item[-1].lower() == "s":
+            return f"Youve found the {item}; would you like to pick them up?\n"
+        return f"Youve found a {item}; would you like to pick it up?\n"
+
+    def get_room_locked(self, location):
+        if "garage" in location:
+            return "The room is chained shut, theres no way in."
+        elif "armory" in location:
+            return "The is locked with a keycard? Maybe there is one around?"
+
+    def leave_item(self):
+        return "You decided to leave the item here, this choice may not be wise."
+
+    def pickedup_item(self, item):
+        if item[0] in self.vowels:
+            return f"You picked up an {item}"
+        else:
+            return f"You picked up the {item}"
+
+    def get_item_already_found(self, location):
+        if location == "garage":
+            return "Looks like the truck is empty."
+        return "Looks like the room is empty."
+
+    def get_item_pickup(self, item):
+        return f"You picked up the item {item}"
+
+    def get_player_inventory(self, inventory_list):
+        return f"Inventory: {"; ".join(inventory_list)}"
+
+    def get_room_description(self, description):
+        return f"""Description: {description}"""
+
+    def get_player_meets_villan_unarmed(self):
+        return "Your not prepared yet, still cant banish back Cthulhu!!!"
+
+    def room_intro(self, location):
+        return f"""Location: {location}"""
+
+class Player:
+    """Class building the basic player setup"""
+
+    def __init__(self):
+        """__init__ function of player class to build player"""
+        self.inventory = []
+        self.location = "start_room"
+        self.visited = []
+        self.dead = False
+
+    def update_location(self, location):
+        """set the location of the player in the map"""
+        self.location = location
+        self.visited += [location]
+
+    def get_visited_map(self):
+        """Print everwhere the player went"""
+        return self.visited
+
+    def update_items(self, item):
+        """Add items to inventory"""
+        self.items += [item]
+
+    def get_location(self):
+        """Get the players location"""
+        return self.location
+
+    def pickup_item(self, item):
+        """Get item add to inventory items"""
+        self.inventory += [item]
+        return self.inventory
+
+    def get_inventory(self):
+        """Get the pretty inventory names"""
+        inventory = set()
+        for item in self.inventory:
+            inventory.update([item["name"]])
+        return sorted(list(inventory))
+
+    def get_inventory_slug(self):
+        """Get the slugs for the inventory"""
+        inventory = set()
+        for item in self.inventory:
+            inventory.update([item["slug"]])
+        return sorted(list(inventory))
+
+    def get_inventory_count(self):
+        """Count the inventory size"""
+        return len(self.inventory)
+
+    def reset(self):
+        """Reset the player top defaults to start new game"""
+        self.inventory = []
+        self.location = "start_room"
+        self.visited = []
+        self.dead = False
+
+class Item:
+    def __init__(self):
+        self.items = {
+            "research_notes": {
+                "name": "Research Notes",
+                "description": "Notes of the summon from the lab, all neat and documented.",
+                "location": "meeting_room",
+                "slug": "research_notes",
+            },
+            "green_slime": {
+                "name": "Green Slime",
+                "description": "A strang glowing green slime that was used in the summon circle?",
+                "location": "lab",
+                "slug": "green_slime",
+            },
+            "secret_notes": {
+                "name": "Secret Notes",
+                "description": "Notes of the issues with the signal that looks like something went wrong.",
+                "location": "kiras_room",
+                "slug": "secret_notes",
+            },
+            "lab_id": {
+                "name": "Lab ID",
+                "description": "The lab id badge for the lab and grounds",
+                "location": "bruces_room",
+                "slug": "lab_id",
+            },
+            "acid": {
+                "name": "Acid Vail",
+                "description": "Vail of acid placed haphazurdusly on the desk",
+                "location": "koals_room",
+                "slug": "acid",
+            },
+            "sandwich": {
+                "name": "Rye with Tuna",
+                "description": "A great lunch to have before setting up the sigals to banish the final boss.",
+                "location": "staff_quarters",
+                "slug": "sandwich",
+            },
+            "handgun": {
+                "name": "Handgun",
+                "description": "Possibly rather useless here but it still helps personal moral.",
+                "location": "armory",
+                "slug": "handgun",
+            },
+            "keys": {
+                "name": "Vehicle Keys",
+                "description": "Keys for the jeep in the garage.",
+                "location": "kitchen",
+                "slug": "keys",
+            },
+            "crystals": {
+                "name": "Purple Pulsating Crystal",
+                "description": "This crystal is very agitating to be near, best to put it away.",
+                "location": "garage",
+                "slug": "crystals",
+            },
+        }
+
+    def get_item(self, location):
+        """Get the item from the room location"""
+        for key, item in self.items.items():
+            if location in item["location"]:
+                return self.items[key]
+        return ""
+
+    def get_count(self):
+        """Get the count of items possible"""
+        return len(self.items.keys())
+
+    def get_description(self, item):
+        """Get the items discription"""
+        return self.items[item]["description"]
 
 
 class Game:
@@ -131,14 +458,13 @@ class Game:
                 else:
                     key_location = connected_rooms[player_input]
                     key_item = self.check_locked_room(self.maps.location[key_location])
-                    print(key_item)
-                    print(self.player.get_inventory_slug())
                     if key_item in self.player.get_inventory_slug() or not key_item:
                         self.player.update_location(key_location)
                         description = self.maps.get_description(
                             self.player.get_location()
                         )
-                        print(self.dialogue.room_into(key_location))
+                        full_key_name = self.maps.get_name(key_location)
+                        print(self.dialogue.room_intro(full_key_name))
                         print(self.dialogue.get_room_description(description))
                         self.handle_item_pickup(self.player.get_location())
                     elif key_item:
