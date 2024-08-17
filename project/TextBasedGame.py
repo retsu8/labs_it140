@@ -138,73 +138,95 @@ class Dialogue:
         self.introduction = """Wellcome to Greyhalk, and the tomb of horrors, you're responsible for making it out of this tomb before running into the horrors of Cthulhu. Deep in the crypt, there lies the ancient sigils of summoning.  Having tested these sigals and succeeded; you're now the sole survivor left, after the rest were killed. You need to now collect the various items from the rooms in order to make a new banishing sigal and hopefully it will work.\n"""
 
     def get_introduciton(self):
+        """Return the dialogue introduction for the game."""
         return self.introduction
 
     def get_player_help(self):
+        """Return the help menu"""
         return self.help
 
     def get_winning_person(self):
+        """Return the winning dialogue for beating the villan"""
         return "You have managed to collect all the items and banish Cthulhu back to the netherrealm!"
 
     def get_room_promt(self, location):
+        """Show the directions that can be done, one direction"""
         return "Looks like theres only one direction to go here."
 
     def get_invalid_input(self):
+        """Return if input invalid"""
         return "That input is invalid, try again."
 
     def get_rooms_promt(self, location):
+        """Show the directions that can be done, multi direction"""
         return """Looks like theres multiple ways to go, where to next?\n_______________________________________________________"""
 
     def get_additional_input(self):
+        """Addition game input dialogue"""
         return "You can also use 0 to quite the game\n--------------------------------------\n"
 
     def get_player_died(self):
+        """The game is over dialogue"""
         return "The game has now ended, you have died."
 
     def get_item_description(self, item):
+        """Return item desription"""
         return f"Item Description: {item}"
 
     def pickup_item(self, item):
+        """Show informaiton for item pickup"""
+        # This is for a single item
         if item[0] in self.vowels:
             return f"You've found an {item}; would you like to pick it up?\n"
+        # This is for a multi item
         elif item[-1].lower() == "s":
             return f"Youve found the {item}; would you like to pick them up?\n"
+        # Catch the item for standard item
         return f"Youve found a {item}; would you like to pick it up?\n"
 
     def get_room_locked(self, location):
+        """Checked the locked room location and print appropriate text."""
         if "garage" in location:
             return "The room is chained shut, theres no way in."
         elif "armory" in location:
             return "The is locked with a keycard? Maybe there is one around?"
 
     def leave_item(self):
+        """Leave the item behind text blurb"""
         return "You decided to leave the item here, this choice may not be wise."
 
     def pickedup_item(self, item):
+        """Check item grammer and return properly"""
         if item[0] in self.vowels:
             return f"You picked up an {item}"
         else:
             return f"You picked up the {item}"
 
     def get_item_already_found(self, location):
+        """Get the item already found stub"""
         if location == "garage":
             return "Looks like the truck is empty."
         return "Looks like the room is empty."
 
     def get_item_pickup(self, item):
+        """"Get the item picked up stub"""
         return f"You picked up the item {item}"
 
     def get_player_inventory(self, inventory_list):
+        """Get the player inventory dialogue stub"""
         return f"Inventory: {'; '.join(inventory_list)}"
 
     def get_room_description(self, description):
+        """Get the room description dialogue stub"""
         return f"""Description: {description}"""
 
     def get_player_meets_villan_unarmed(self):
+        """Get the villian unarmed dialogue stub"""
         return "Your not prepared yet, still cant banish back Cthulhu!!!"
 
-    def room_intro(self, location):
-        return f"""Location: {location}"""
+    def get_visited_description(self):
+        """Return a blurb for visiting the rooms"""
+        return "Fun map of where you wondered."
 
 
 class Player:
@@ -352,15 +374,18 @@ class Game:
 
     def player_input_selection(self):
         """Handle Player input for room navigation"""
+        # This input checks the maps connected rooms and prints the recorded discription
         if len(self.maps.get_connected_rooms(self.player.get_location())) > 1:
             print(self.dialogue.get_rooms_promt(self.player.get_location()))
         else:
             print(self.dialogue.get_room_promt(self.player.get_location()))
+        # This makes a pretty room map to handle the player mapping
         for key, room in self.maps.get_connected_rooms(
             self.player.get_location()
         ).items():
             room = self.maps.get_name(room)
             print(f"{key}: {room}")
+        # Get the player selection split it and then handle it.
         selection = input().split(" ", maxsplit=1)
         if "go" in selection:
             selection = selection[1]
@@ -368,6 +393,7 @@ class Game:
             return selection[0]
         else:
             return False
+        # Clean up selection fo actual room
         re.sub("[^A-Za-z0-9 ]+", "", selection)
         selection = selection.lower().replace(" ", "_")
         return selection
@@ -381,17 +407,21 @@ class Game:
 
     def handle_play_again(self):
         """Handle player interaction with play again"""
-        print("Fun map of where you wondered.")
+        print(self.dialogue.get_visited_description())
         print(self.player.get_visited_map())
         while True:
+            # Does the player want to try again?
             ans = input("Play again? Y/N")
             if "y" == ans.lower():
+                # reset the player to play again
                 self.player.reset()
                 return
             elif "n" == ans.lower():
+                # End the game goodbye
                 print("Goodbye")
                 return
             else:
+                # We have been given junk do it agian.
                 print("Invalid response")
 
     def handle_player_died(self):
@@ -404,31 +434,38 @@ class Game:
         """Player item pickup"""
         pickup = input(self.dialogue.pickup_item(room_item["name"]))
         pickup = pickup.split(" ", maxsplit=1)
+        # Check player default selection help
         if self.handle_player_defaults(pickup):
             return
+        # Get the get for item pickup
         elif "get" in pickup:
+            # Clean the item
             pickup.remove("get")
             pickup = pickup[0].lower()
+            # String item to lower to match pickup
             if room_item["name"].lower() in pickup:
+                # Player then picks up item here
                 self.player.pickup_item(room_item)
+                # Print the dialogue for the item being picked up.
                 print(self.dialogue.pickedup_item(room_item["name"]))
                 print(self.dialogue.get_item_description(room_item["description"]))
                 return True
-            else:
-                print(self.dialogue.get_invalid_input())
         elif "leave" in pickup:
             pickup.remove("leave")
             print(self.dialogue.leave_item())
             return True
-        else:
-            print(self.dialogue.get_invalid_input())
+        # Print invalid, input not understood
+        print(self.dialogue.get_invalid_input())
         return False
 
     def handle_player_defaults(self, player_input):
+        """Hanle player defult menu"""
         if player_input == "0":
+            # Player has decided to quite
             self.handle_player_died()
             return True
         elif player_input == "help":
+            # Player needs more help show help menu
             print(self.dialogue.get_player_help())
             return True
         return False
@@ -444,29 +481,41 @@ class Game:
         description = self.maps.get_description(location)
         print(self.dialogue.get_room_description(description))
 
+    def player_won_game(self):
+        """Player has wont the game"""
+        print(self.dialogue.get_winning_person())
+        self.handle_play_again()
+
     def handle_player_walk(self):
         """Main player walk functionality."""
+        # Get the player input
         player_input = self.player_input_selection()
+        # Get the connected player rooms
         connected_rooms = self.maps.get_connected_rooms(self.player.get_location())
+        # Hand the default player walk
         if self.handle_player_defaults(player_input):
             return
+        # Handle the connected rooms review
         elif player_input in connected_rooms.keys():
-            # HOW TO: handle player fights villain
+            # Handle Player fights villian
             if player_input in self.villian:
                 if self.player.get_inventory_count() == self.items.get_count():
-                    print(self.dialogue.get_winning_person())
+                    # Player has all items, you win
+                    self.player_won_game()
                 else:
+                    # Player does not have all items, you lose
                     print(self.dialogue.get_player_meets_villan_unarmed())
                     self.handle_player_died()
             else:
+                # Handle getting items from room.
                 key_location = connected_rooms[player_input]
                 key_item = self.check_locked_room(self.maps.location[key_location])
+                # Check if player already has the item.
                 if key_item in self.player.get_inventory_slug() or not key_item:
+                    # Update the player location
                     self.player.update_location(key_location)
-                    description = self.maps.get_description(self.player.get_location())
+                    # Get the desciprtion of the player location
                     key_room_name = self.maps.get_name(key_location)
-                    print(self.dialogue.room_intro(key_room_name))
-                    print(self.dialogue.get_room_description(description))
                     room_item = self.items.get_item(self.player.get_location())
                     if room_item["slug"] not in self.player.get_inventory_slug():
                         choice = False
@@ -481,8 +530,9 @@ class Game:
     def main(self):
         """Main player handling function"""
         self.play_introduction()
-        self.get_room_description(self.player.get_location())
         while not self.player.dead:
+            description = self.maps.get_description(self.player.get_location())
+            print(self.dialogue.get_room_description(description))
             print(self.dialogue.get_player_inventory(self.player.get_inventory()))
             self.handle_player_walk()
 
