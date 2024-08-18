@@ -125,7 +125,6 @@ class Map:
             if "villian" in self.location[room]:
                 return room
 
-
 class Dialogue:
     def __init__(self):
         """Dialogue functionaity of rooms game; this class makes the dialoge for the game,
@@ -209,7 +208,7 @@ class Dialogue:
         return "Looks like the room is empty."
 
     def get_item_pickup(self, item):
-        """"Get the item picked up stub"""
+        """ "Get the item picked up stub"""
         return f"You picked up the item {item}"
 
     def get_player_inventory(self, inventory_list):
@@ -372,6 +371,10 @@ class Game:
         self.items = Item()
         self.villian = self.maps.get_villian_location()
 
+    def visiting_trail(self):
+        visited_pretty_names = [self.maps.location[loc]["name"] for loc in self.player.visited]
+        return ", ".join(visited_pretty_names)
+    
     def player_input_selection(self):
         """Handle Player input for room navigation"""
         # This input checks the maps connected rooms and prints the recorded discription
@@ -408,10 +411,10 @@ class Game:
     def handle_play_again(self):
         """Handle player interaction with play again"""
         print(self.dialogue.get_visited_description())
-        print(self.player.get_visited_map())
+        print(self.visiting_trail())
         while True:
             # Does the player want to try again?
-            ans = input("Play again? Y/N")
+            ans = input("Play again? Y/N\n")
             if "y" == ans.lower():
                 # reset the player to play again
                 self.player.reset()
@@ -469,7 +472,7 @@ class Game:
             print(self.dialogue.get_player_help())
             return True
         return False
-    
+
     def play_introduction(self):
         """Introduce the story and help menu"""
         print(self.dialogue.get_introduciton())
@@ -497,18 +500,21 @@ class Game:
             return
         # Handle the connected rooms review
         elif player_input in connected_rooms.keys():
+            # Get the room location information
+            key_location = connected_rooms[player_input]
             # Handle Player fights villian
-            if player_input in self.villian:
+            if key_location in self.villian:
                 if self.player.get_inventory_count() == self.items.get_count():
                     # Player has all items, you win
                     self.player_won_game()
+                    return
                 else:
                     # Player does not have all items, you lose
                     print(self.dialogue.get_player_meets_villan_unarmed())
                     self.handle_player_died()
+                    return
             else:
                 # Handle getting items from room.
-                key_location = connected_rooms[player_input]
                 key_item = self.check_locked_room(self.maps.location[key_location])
                 # Check if player already has the item.
                 if key_item in self.player.get_inventory_slug() or not key_item:
@@ -517,11 +523,14 @@ class Game:
                     # Get the desciprtion of the player location
                     key_room_name = self.maps.get_name(key_location)
                     room_item = self.items.get_item(self.player.get_location())
-                    if room_item["slug"] not in self.player.get_inventory_slug():
+                    # Check the start room, handle iteraction as needed
+                    if key_location is not 'start_room' and room_item["slug"] not in self.player.get_inventory_slug():
                         choice = False
                         while not choice:
+                            # Make a choice to get this item
                             choice = self.handle_item_pickup(room_item)
                 elif key_item:
+                    # Leave the item behind
                     print(self.dialogue.get_room_locked(key_location))
         else:
             print(self.dialogue.get_invalid_input())
@@ -531,38 +540,64 @@ class Game:
         """Main player handling function"""
         self.play_introduction()
         while not self.player.dead:
+            # Player here is not dead
             description = self.maps.get_description(self.player.get_location())
+            # Print the description of room
             print(self.dialogue.get_room_description(description))
+            # Print the inventory
             print(self.dialogue.get_player_inventory(self.player.get_inventory()))
+            # Go walk the map
             self.handle_player_walk()
 
 
 class TestPlayerInputSelection(TestCase):
 
-    @mock.patch("__main__.Game.handle_item_pickup")
-    def test_player_input_selection(self, handle_item_pickup_mock):
+    def test_player_input_selection(self):
         """Test the selection input for good responses"""
-        handle_item_pickup_mock.return_value=True
-
         game = Game()
+        # Patch the route west
         with mock.patch("builtins.input", return_value="go west"):
             self.assertEqual(game.player_input_selection(), "west")
 
+        # path the go
         with mock.patch("builtins.input", return_value="go right"):
             self.assertEqual(game.player_input_selection(), "right")
 
+        # patch bogus
         with mock.patch("builtins.input", return_value="goright"):
             self.assertEqual(game.player_input_selection(), False)
 
+        # patch nothing
         with mock.patch("builtins.input", return_value="try again"):
             self.assertEqual(game.player_input_selection(), False)
 
+    @mock.patch("__main__.Game.handle_item_pickup")
+    def test_handle_player_walk(self, handle_item_pickup):
+        """Testing out if villian walk works"""
+        # Mock out item pickup
+        handle_item_pickup.return_value = True
+        # Get game, set location
+        game = Game()
+        game.player.update_location("lab")
+
+        # Set the input to handle the player walk
+        with mock.patch("builtins.input", return_value="go west"):
+            self.assertEqual(game.handle_player_walk(), None)
+
+    def test_get_villian_location(self):
+        """Test villian location is here"""
+        game = Game()
+        print(game.villian)
+        self.assertEqual(game.villian, game.maps.get_villian_location())
+
     def test_check_locked_room(self):
+        """Test locked doors"""
         game = Game()
         keys = {"locked": "acid"}
         self.assertIs(game.check_locked_room(keys), "acid")
 
     def test_handle_play_again(self):
+        # Test play again functionality
         game = Game()
         game.player.update_location("staff_quarters")
         with mock.patch("builtins.input", return_value="y"):
@@ -570,6 +605,7 @@ class TestPlayerInputSelection(TestCase):
             self.assertEqual(game.player.location, "start_room")
 
     def test_update_inventory(self):
+        """Test the inventory updates"""
         game = Game()
         item = Item()
         game.player.pickup_item(item.items["green_slime"])
@@ -578,6 +614,7 @@ class TestPlayerInputSelection(TestCase):
         self.assertEqual(game.player.get_inventory(), ["Green Slime", "Research Notes"])
 
     def test_handle_item_pickup(self):
+        """Test item pickup handle"""
         game = Game()
         game.player.update_location("lab")
         with mock.patch("builtins.input", return_value="get green slime"):
@@ -599,6 +636,8 @@ if __name__ == "__main__":
         test.test_handle_play_again()
         test.test_update_inventory()
         test.test_handle_item_pickup()
+        test.test_get_villian_location()
+        test.test_handle_player_walk()
     else:
         """Start the game"""
         game = Game()
