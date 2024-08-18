@@ -372,6 +372,7 @@ class Game:
         self.villian = self.maps.get_villian_location()
 
     def visiting_trail(self):
+        """Cleaning up fun visiting tail"""
         visited_pretty_names = [self.maps.location[loc]["name"] for loc in self.player.visited]
         return ", ".join(visited_pretty_names)
     
